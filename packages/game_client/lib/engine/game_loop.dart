@@ -1,0 +1,36 @@
+typedef UpdateCallback = void Function(double dt);
+
+abstract class GameTicker {
+  void start(void Function(double frameDt) onFrame);
+  void stop();
+}
+
+class FixedStepAccumulator {
+  final double fixedDelta;
+  final double maxAccumulator;
+  double _accumulator = 0.0;
+
+  FixedStepAccumulator({
+    this.fixedDelta = 1.0 / 60.0,
+    this.maxAccumulator = 0.25,
+  });
+
+  void advance(double frameDt, UpdateCallback onUpdate) {
+    var dt = frameDt;
+    if (dt > maxAccumulator) {
+      dt = maxAccumulator;
+    }
+    _accumulator += dt;
+
+    while (_accumulator >= fixedDelta) {
+      onUpdate(fixedDelta);
+      _accumulator -= fixedDelta;
+    }
+  }
+
+  double get alpha => _accumulator / fixedDelta;
+
+  void reset() {
+    _accumulator = 0.0;
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Dart Server",
+      "type": "dart",
+      "request": "launch",
+      "program": "packages/game_server/bin/server.dart"
+    },
+    {
+      "name": "Flutter (macOS)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "apps/flutter_app",
+      "program": "lib/main.dart",
+      "deviceId": "macos"
+    },
+    {
+      "name": "Flutter (Chrome)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "apps/flutter_app",
+      "program": "lib/main.dart",
+      "deviceId": "chrome"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Server + Flutter (macOS)",
+      "configurations": ["Dart Server", "Flutter (macOS)"]
+    }
+  ]
+}

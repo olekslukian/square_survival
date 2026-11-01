@@ -1,0 +1,9 @@
+.DS_Store
+.dart_tool/
+.packages
+.pub-cache/
+build/
+*.iml
+.idea/
+.flutter-plugins
+.flutter-plugins-dependencies
