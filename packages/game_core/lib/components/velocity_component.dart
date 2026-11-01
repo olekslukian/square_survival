@@ -1,6 +1,6 @@
 import 'package:game_core/ecs/component.dart';
 
-class VelocityComponent extends Component {
+class VelocityComponent implements Component {
   VelocityComponent({this.vx = 0.0, this.vy = 0.0});
 
   factory VelocityComponent.fromJson(Map<String, dynamic> json) =>
@@ -11,5 +11,6 @@ class VelocityComponent extends Component {
   double vx;
   double vy;
 
+  @override
   Map<String, dynamic> toJson() => {'vx': vx, 'vy': vy};
 }

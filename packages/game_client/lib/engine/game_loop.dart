@@ -1,10 +1,5 @@
 typedef UpdateCallback = void Function(double dt);
 
-abstract class GameTicker {
-  void start(void Function(double frameDt) onFrame);
-  void stop();
-}
-
 class FixedStepAccumulator {
   FixedStepAccumulator({
     this.fixedDelta = 1.0 / 60.0,

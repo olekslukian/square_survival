@@ -16,6 +16,7 @@ dependencies:
     path: ../../packages/game_core
   game_server:
     path: ../../packages/game_server
+  provider: ^6.1.5+1
 
 dev_dependencies:
   flutter_lints: ^5.0.0

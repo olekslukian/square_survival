@@ -21,10 +21,11 @@ class NetworkClient {
     try {
       final uri = Uri.parse(url);
       _channel = WebSocketChannel.connect(uri);
-      await _channel!.ready;
+      await _channel?.ready;
+
       _setStatus(ConnectionStatus.connected);
 
-      _subscription = _channel!.stream.listen(
+      _subscription = _channel?.stream.listen(
         (data) {
           if (data is String) {
             final packet = GamePacket.deserialize(data);
@@ -50,7 +51,7 @@ class NetworkClient {
 
   void send(GamePacket packet) {
     if (_status == ConnectionStatus.connected && _channel != null) {
-      _channel!.sink.add(packet.serialize());
+      _channel?.sink.add(packet.serialize());
     }
   }
 

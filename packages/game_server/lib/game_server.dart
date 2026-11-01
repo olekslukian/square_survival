@@ -22,7 +22,7 @@ class GameServer {
     print(' 🔌 WebSocket Endpoint: ws://localhost:$port/ws');
     print('==================================================');
 
-    _server!.listen((request) async {
+    _server?.listen((request) async {
       if (request.uri.path == '/health') {
         request.response
           ..headers.contentType = ContentType.json
