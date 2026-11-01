@@ -6,14 +6,13 @@ abstract class GameTicker {
 }
 
 class FixedStepAccumulator {
-  final double fixedDelta;
-  final double maxAccumulator;
-  double _accumulator = 0.0;
-
   FixedStepAccumulator({
     this.fixedDelta = 1.0 / 60.0,
     this.maxAccumulator = 0.25,
   });
+  final double fixedDelta;
+  final double maxAccumulator;
+  double _accumulator = 0;
 
   void advance(double frameDt, UpdateCallback onUpdate) {
     var dt = frameDt;

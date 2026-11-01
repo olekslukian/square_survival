@@ -5,17 +5,13 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 enum ConnectionStatus { disconnected, connecting, connected, error }
 
 class NetworkClient {
+  NetworkClient({this.onStatusChanged, this.onPacketReceived});
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
   ConnectionStatus _status = ConnectionStatus.disconnected;
 
   final void Function(ConnectionStatus status)? onStatusChanged;
   final void Function(GamePacket packet)? onPacketReceived;
-
-  NetworkClient({
-    this.onStatusChanged,
-    this.onPacketReceived,
-  });
 
   ConnectionStatus get status => _status;
 
@@ -59,9 +55,9 @@ class NetworkClient {
   }
 
   void disconnect() {
-    _subscription?.cancel();
+    unawaited(_subscription?.cancel());
     _subscription = null;
-    _channel?.sink.close();
+    unawaited(_channel?.sink.close());
     _channel = null;
     if (_status != ConnectionStatus.disconnected) {
       _setStatus(ConnectionStatus.disconnected);

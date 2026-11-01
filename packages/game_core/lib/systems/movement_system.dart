@@ -1,6 +1,6 @@
-import '../components/transform_component.dart';
-import '../components/velocity_component.dart';
-import '../ecs/world.dart';
+import 'package:game_core/components/transform_component.dart';
+import 'package:game_core/components/velocity_component.dart';
+import 'package:game_core/ecs/world.dart';
 
 class MovementSystem {
   void update(World world, double dt) {
@@ -10,8 +10,9 @@ class MovementSystem {
       final transform = world.getComponent<TransformComponent>(entity)!;
       final velocity = world.getComponent<VelocityComponent>(entity)!;
 
-      transform.x += velocity.vx * dt;
-      transform.y += velocity.vy * dt;
+      transform
+        ..x += velocity.vx * dt
+        ..y += velocity.vy * dt;
     }
   }
 }

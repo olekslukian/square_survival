@@ -10,6 +10,6 @@ class FlutterAssetLoader implements AssetLoader {
 
   @override
   Future<String> loadString(String path) async {
-    return await rootBundle.loadString(path);
+    return rootBundle.loadString(path);
   }
 }

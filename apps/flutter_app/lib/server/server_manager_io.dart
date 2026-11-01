@@ -8,7 +8,9 @@ class EmbeddedServerController {
   bool get isRunning => _server != null;
 
   Future<void> start({int port = 8080}) async {
-    if (_server != null) return;
+    if (_server != null) {
+      return;
+    }
     _server = GameServer(port: port);
     await _server!.start();
   }

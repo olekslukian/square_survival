@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:game_core/game_core.dart';
-import 'client_session.dart';
+import 'package:game_server/src/client_session.dart';
 
 class GameRoom {
   final World world = World();
@@ -32,8 +32,9 @@ class GameRoom {
 
   void addSession(String id, WebSocket socket) {
     final entity = world.createEntity();
-    world.addComponent(entity, TransformComponent(x: 100.0, y: 100.0));
-    world.addComponent(entity, VelocityComponent(vx: 0.0, vy: 0.0));
+    world
+      ..addComponent(entity, TransformComponent(x: 100, y: 100))
+      ..addComponent(entity, VelocityComponent());
 
     final session = ClientSession(id: id, socket: socket, entity: entity);
     sessions[id] = session;
@@ -63,13 +64,16 @@ class GameRoom {
 
   void handlePacket(String clientId, GamePacket packet) {
     final session = sessions[clientId];
-    if (session == null) return;
+    if (session == null) {
+      return;
+    }
 
     if (packet is InputPacket) {
       final vel = world.getComponent<VelocityComponent>(session.entity);
       if (vel != null) {
-        vel.vx = packet.vx;
-        vel.vy = packet.vy;
+        vel
+          ..vx = packet.vx
+          ..vy = packet.vy;
       }
     }
   }
@@ -92,14 +96,16 @@ class GameRoom {
         }
       }
 
-      snapshots.add(EntitySnapshot(
-        entityId: entity,
-        ownerId: ownerId,
-        x: transform.x,
-        y: transform.y,
-        vx: velocity.vx,
-        vy: velocity.vy,
-      ));
+      snapshots.add(
+        EntitySnapshot(
+          entityId: entity,
+          ownerId: ownerId,
+          x: transform.x,
+          y: transform.y,
+          vx: velocity.vx,
+          vy: velocity.vy,
+        ),
+      );
     }
 
     final worldState = WorldStatePacket(

@@ -35,14 +35,20 @@ class CanvasRenderSystem {
         ..color = isLocal ? const Color(0xFF4CAF50) : const Color(0xFF03A9F4)
         ..style = PaintingStyle.fill;
 
-      final rect = Rect.fromLTWH(transform.x, transform.y, 24.0, 24.0);
-      canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(4)), paint);
+      final rect = Rect.fromLTWH(transform.x, transform.y, 24, 24);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, const Radius.circular(4)),
+        paint,
+      );
 
       final outlinePaint = Paint()
         ..color = Colors.white70
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5;
-      canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(4)), outlinePaint);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, const Radius.circular(4)),
+        outlinePaint,
+      );
     }
   }
 }

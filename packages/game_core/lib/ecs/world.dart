@@ -1,5 +1,5 @@
-import 'component.dart';
-import 'entity.dart';
+import 'package:game_core/ecs/component.dart';
+import 'package:game_core/ecs/entity.dart';
 
 class World {
   int _nextEntityId = 0;
@@ -32,16 +32,22 @@ class World {
   }
 
   List<Entity> query(List<Type> requiredTypes) {
-    if (requiredTypes.isEmpty) return [];
+    if (requiredTypes.isEmpty) {
+      return [];
+    }
 
-    final firstEntities = _componentStores[requiredTypes.first]?.keys.toSet() ?? {};
-    if (firstEntities.isEmpty) return [];
+    final firstEntities =
+        _componentStores[requiredTypes.first]?.keys.toSet() ?? {};
+    if (firstEntities.isEmpty) {
+      return [];
+    }
 
     final result = <Entity>[];
     for (final entity in firstEntities) {
       var matches = true;
       for (var i = 1; i < requiredTypes.length; i++) {
-        if (!(_componentStores[requiredTypes[i]]?.containsKey(entity) ?? false)) {
+        if (!(_componentStores[requiredTypes[i]]?.containsKey(entity) ??
+            false)) {
           matches = false;
           break;
         }

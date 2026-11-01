@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app/canvas_render_system.dart';
+import 'package:flutter_app/server/server_manager.dart';
 import 'package:game_client/game_client.dart';
 import 'package:game_core/game_core.dart';
-import 'canvas_render_system.dart';
-import 'server/server_manager.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,8 +41,9 @@ class GameLauncherScreen extends StatefulWidget {
 }
 
 class _GameLauncherScreenState extends State<GameLauncherScreen> {
-  final TextEditingController _serverUrlController =
-      TextEditingController(text: 'ws://localhost:8080/ws');
+  final TextEditingController _serverUrlController = TextEditingController(
+    text: 'ws://localhost:8080/ws',
+  );
 
   @override
   void dispose() {
@@ -49,29 +52,37 @@ class _GameLauncherScreenState extends State<GameLauncherScreen> {
   }
 
   void _launchSinglePlayer() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const GameScreen(mode: GameSessionMode.singlePlayer),
+    unawaited(
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const GameScreen(mode: GameSessionMode.singlePlayer),
+        ),
       ),
     );
   }
 
   void _launchHostMultiplayer() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const GameScreen(mode: GameSessionMode.hostedServer),
+    unawaited(
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const GameScreen(mode: GameSessionMode.hostedServer),
+        ),
       ),
     );
   }
 
   void _launchJoinMultiplayer() {
     final url = _serverUrlController.text.trim();
-    if (url.isEmpty) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => GameScreen(
-          mode: GameSessionMode.clientMultiplayer,
-          serverUrl: url,
+    if (url.isEmpty) {
+      return;
+    }
+    unawaited(
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => GameScreen(
+            mode: GameSessionMode.clientMultiplayer,
+            serverUrl: url,
+          ),
         ),
       ),
     );
@@ -95,7 +106,7 @@ class _GameLauncherScreenState extends State<GameLauncherScreen> {
               ),
               elevation: 8,
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -125,107 +136,113 @@ class _GameLauncherScreenState extends State<GameLauncherScreen> {
                         ],
                       ),
                     ),
-                  const SizedBox(height: 8),
-                  const Center(
-                    child: Text(
-                      'Pure Dart Engine & Multi-Platform Client',
-                      style: TextStyle(color: Colors.white60, fontSize: 13),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: const Color(0xFF4CAF50),
-                    ),
-                    onPressed: _launchSinglePlayer,
-                    icon: const Icon(Icons.person),
-                    label: const Text(
-                      'Single Player (Offline)',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: canHost
-                          ? const Color(0xFF2E7D32)
-                          : const Color(0xFF37474F),
-                    ),
-                    onPressed: canHost ? _launchHostMultiplayer : null,
-                    icon: const Icon(Icons.dns),
-                    label: Text(
-                      canHost
-                          ? 'Host & Play (Local Server)'
-                          : 'Host Server (Unsupported on Web)',
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  if (!canHost)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 6, left: 4),
+                    const SizedBox(height: 8),
+                    const Center(
                       child: Text(
-                        'Web clients cannot bind local sockets. Connect to an existing server instead.',
-                        style: TextStyle(color: Colors.amberAccent, fontSize: 11),
+                        'Pure Dart Engine & Multi-Platform Client',
+                        style: TextStyle(color: Colors.white60, fontSize: 13),
                       ),
                     ),
-                  const SizedBox(height: 24),
-                  const Divider(color: Color(0xFF333344)),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _serverUrlController,
-                    decoration: InputDecoration(
-                      labelText: 'Server WebSocket URL',
-                      hintText: 'ws://localhost:8080/ws',
-                      filled: true,
-                      fillColor: const Color(0xFF282836),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide.none,
+                    const SizedBox(height: 32),
+                    FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: const Color(0xFF4CAF50),
                       ),
-                      prefixIcon: const Icon(Icons.link, size: 20),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: Color(0xFF03A9F4)),
-                    ),
-                    onPressed: _launchJoinMultiplayer,
-                    icon: const Icon(Icons.wifi, color: Color(0xFF03A9F4)),
-                    label: const Text(
-                      'Connect to Server',
-                      style: TextStyle(
-                        color: Color(0xFF03A9F4),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      onPressed: _launchSinglePlayer,
+                      icon: const Icon(Icons.person),
+                      label: const Text(
+                        'Single Player (Offline)',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: canHost
+                            ? const Color(0xFF2E7D32)
+                            : const Color(0xFF37474F),
+                      ),
+                      onPressed: canHost ? _launchHostMultiplayer : null,
+                      icon: const Icon(Icons.dns),
+                      label: Text(
+                        canHost
+                            ? 'Host & Play (Local Server)'
+                            : 'Host Server (Unsupported on Web)',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    if (!canHost)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 6, left: 4),
+                        child: Text(
+                          'Web clients cannot bind local sockets. '
+                          'Connect to an existing server instead.',
+                          style: TextStyle(
+                            color: Colors.amberAccent,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 24),
+                    const Divider(color: Color(0xFF333344)),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _serverUrlController,
+                      decoration: InputDecoration(
+                        labelText: 'Server WebSocket URL',
+                        hintText: 'ws://localhost:8080/ws',
+                        filled: true,
+                        fillColor: const Color(0xFF282836),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        prefixIcon: const Icon(Icons.link, size: 20),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: Color(0xFF03A9F4)),
+                      ),
+                      onPressed: _launchJoinMultiplayer,
+                      icon: const Icon(Icons.wifi, color: Color(0xFF03A9F4)),
+                      label: const Text(
+                        'Connect to Server',
+                        style: TextStyle(
+                          color: Color(0xFF03A9F4),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
   }
 }
 
 enum GameSessionMode { singlePlayer, hostedServer, clientMultiplayer }
 
 class GameScreen extends StatefulWidget {
+  const GameScreen({required this.mode, super.key, this.serverUrl});
+
   final GameSessionMode mode;
   final String? serverUrl;
-
-  const GameScreen({
-    super.key,
-    required this.mode,
-    this.serverUrl,
-  });
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -247,8 +264,8 @@ class _GameScreenState extends State<GameScreen>
   EmbeddedServerController? _embeddedServer;
   NetworkClient? _networkClient;
 
-  double _inputVx = 0.0;
-  double _inputVy = 0.0;
+  double _inputVx = 0;
+  double _inputVy = 0;
   final Set<LogicalKeyboardKey> _pressedKeys = {};
 
   String _statusText = 'Initializing';
@@ -256,7 +273,7 @@ class _GameScreenState extends State<GameScreen>
   @override
   void initState() {
     super.initState();
-    _initSession();
+    unawaited(_initSession());
 
     _ticker = createTicker((elapsed) {
       if (_lastElapsed == Duration.zero) {
@@ -266,9 +283,7 @@ class _GameScreenState extends State<GameScreen>
       final frameDt = (elapsed - _lastElapsed).inMicroseconds / 1000000.0;
       _lastElapsed = elapsed;
 
-      _accumulator.advance(frameDt, (dt) {
-        _update(dt);
-      });
+      _accumulator.advance(frameDt, _update);
 
       setState(() {});
     });
@@ -283,37 +298,33 @@ class _GameScreenState extends State<GameScreen>
           _localPlayerEntity!,
           TransformComponent(x: 200, y: 200),
         );
-        _world.addComponent(
-          _localPlayerEntity!,
-          VelocityComponent(vx: 0, vy: 0),
-        );
+        _world.addComponent(_localPlayerEntity!, VelocityComponent());
         setState(() {
           _statusText = 'Single Player Mode';
         });
-        break;
 
       case GameSessionMode.hostedServer:
         _embeddedServer = EmbeddedServerController();
-        await _embeddedServer!.start(port: 8080);
+        await _embeddedServer!.start();
         setState(() {
           _statusText = 'Hosting on :8080. Connecting...';
         });
         _connectNetwork('ws://localhost:8080/ws');
-        break;
 
       case GameSessionMode.clientMultiplayer:
         setState(() {
           _statusText = 'Connecting to ${widget.serverUrl}...';
         });
         _connectNetwork(widget.serverUrl ?? 'ws://localhost:8080/ws');
-        break;
     }
   }
 
   void _connectNetwork(String url) {
     _networkClient = NetworkClient(
       onStatusChanged: (status) {
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
         setState(() {
           _statusText = switch (status) {
             ConnectionStatus.connecting => 'Connecting...',
@@ -325,7 +336,7 @@ class _GameScreenState extends State<GameScreen>
       },
       onPacketReceived: _handleServerPacket,
     );
-    _networkClient!.connect(url);
+    unawaited(_networkClient!.connect(url));
   }
 
   void _handleServerPacket(GamePacket packet) {
@@ -345,16 +356,18 @@ class _GameScreenState extends State<GameScreen>
           transform = TransformComponent(x: snap.x, y: snap.y);
           _world.addComponent(snap.entityId, transform);
         } else {
-          transform.x = snap.x;
-          transform.y = snap.y;
+          transform
+            ..x = snap.x
+            ..y = snap.y;
         }
 
         if (velocity == null) {
           velocity = VelocityComponent(vx: snap.vx, vy: snap.vy);
           _world.addComponent(snap.entityId, velocity);
         } else {
-          velocity.vx = snap.vx;
-          velocity.vy = snap.vy;
+          velocity
+            ..vx = snap.vx
+            ..vy = snap.vy;
         }
 
         if (snap.ownerId != null && snap.ownerId == _myPlayerId) {
@@ -376,8 +389,9 @@ class _GameScreenState extends State<GameScreen>
       if (_localPlayerEntity != null) {
         final vel = _world.getComponent<VelocityComponent>(_localPlayerEntity!);
         if (vel != null) {
-          vel.vx = _inputVx;
-          vel.vy = _inputVy;
+          vel
+            ..vx = _inputVx
+            ..vy = _inputVy;
         }
       }
       _movementSystem.update(_world, dt);
@@ -417,7 +431,7 @@ class _GameScreenState extends State<GameScreen>
   void dispose() {
     _ticker.dispose();
     _networkClient?.disconnect();
-    _embeddedServer?.stop();
+    unawaited(_embeddedServer?.stop());
     super.dispose();
   }
 
@@ -452,7 +466,7 @@ class _GameScreenState extends State<GameScreen>
             ),
             SafeArea(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -479,7 +493,8 @@ class _GameScreenState extends State<GameScreen>
                                 height: 10,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: _statusText == 'Connected' ||
+                                  color:
+                                      _statusText == 'Connected' ||
                                           widget.mode ==
                                               GameSessionMode.singlePlayer
                                       ? Colors.greenAccent
@@ -498,7 +513,8 @@ class _GameScreenState extends State<GameScreen>
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Entities: ${_world.query([TransformComponent]).length}',
+                            'Entities: '
+                            '${_world.query([TransformComponent]).length}',
                             style: const TextStyle(
                               fontSize: 12,
                               color: Colors.white70,
@@ -506,7 +522,8 @@ class _GameScreenState extends State<GameScreen>
                           ),
                           if (localTransform != null)
                             Text(
-                              'Pos: (${localTransform.x.toStringAsFixed(1)}, ${localTransform.y.toStringAsFixed(1)})',
+                              'Pos: (${localTransform.x.toStringAsFixed(1)}, '
+                              '${localTransform.y.toStringAsFixed(1)})',
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.white70,
@@ -549,15 +566,15 @@ class _GameScreenState extends State<GameScreen>
 }
 
 class _GameCanvasPainter extends CustomPainter {
-  final World world;
-  final CanvasRenderSystem renderSystem;
-  final Entity? localPlayerEntity;
-
   _GameCanvasPainter({
     required this.world,
     required this.renderSystem,
     this.localPlayerEntity,
   });
+
+  final World world;
+  final CanvasRenderSystem renderSystem;
+  final Entity? localPlayerEntity;
 
   @override
   void paint(Canvas canvas, Size size) {
